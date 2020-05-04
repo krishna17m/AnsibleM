@@ -1,0 +1,53 @@
+[Krishna1@ansible ~]$
+[Krishna1@ansible ~]$ mkdir ~/apache_basic
+mkdir: cannot create directory ‘/home/Krishna1/apache_basic’: File exists
+[Krishna1@ansible ~]$ cd mkdir ~/apache_basic^C
+[Krishna1@ansible ~]$ cd ~/apache_basic
+[Krishna1@ansible apache_basic]$ vim install_apache.yml
+---asdf
+- name: Install the apache web service
+  hosts: web
+  become: yes
+
+  tasks:
+   - name: install apache
+     yum:
+       name: httpd
+       state: present
+
+   - name: start httpd
+     service:
+       name: httpd
+       state: started---
+~
+
+wq!
+
+Krishna1@ansible apache_basic]$ ansible-playbook install_apache.yml
+
+PLAY [Install the apache web service] **********************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [node1]
+ok: [node3]
+ok: [node2]
+
+TASK [install apache] **************************************************************************************************************************************************
+changed: [node2]
+changed: [node1]
+changed: [node3]
+
+TASK [start httpd] *****************************************************************************************************************************************************
+fatal: [node3]: FAILED! => changed=false
+  msg: 'value of state must be one of: reloaded, restarted, started, stopped, got: started---'
+fatal: [node1]: FAILED! => changed=false
+  msg: 'value of state must be one of: reloaded, restarted, started, stopped, got: started---'
+fatal: [node2]: FAILED! => changed=false
+  msg: 'value of state must be one of: reloaded, restarted, started, stopped, got: started---'
+
+PLAY RECAP *************************************************************************************************************************************************************
+node1                      : ok=2    changed=1    unreachable=0    failed=1
+node2                      : ok=2    changed=1    unreachable=0    failed=1
+node3                      : ok=2    changed=1    unreachable=0    failed=1
+
+

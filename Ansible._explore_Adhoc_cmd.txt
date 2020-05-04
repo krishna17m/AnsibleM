@@ -1,0 +1,115 @@
+Explore and ADHOC commands:-
+
+Using username "student1".
+Error writing session log (raw mode) to file: C:\putty.log\ 3.127.197.82-2020050                                                                                        4-133207.log
+student1@3.127.197.82's password:
+Access denied
+student1@3.127.197.82's password:
+Last login: Mon May  4 00:00:09 2020 from 203.192.241.69
+[student1@ansible ~]$ cat ~/.ansible.cfg
+[defaults]
+stdout_callback = yaml
+connection = smart
+timeout = 60
+deprecation_warnings = False
+host_key_checking = False
+retry_files_enabled = False
+inventory = /home/student1/lightbulb/lessons/lab_inventory/student1-instances.txt
+[student1@ansible ~]$ cat /home/student1/lightbulb/lessons/lab_inventory/student1-instances.txt
+[all:vars]
+ansible_user=student1
+ansible_ssh_pass=6nOWzxqNrWPraL
+ansible_port=22
+
+[web]
+node1 ansible_host=3.125.197.114
+node2 ansible_host=18.156.88.137
+node3 ansible_host=3.124.145.70
+
+[control]
+ansible ansible_host=3.127.197.82
+[student1@ansible ~]$ ansible all --list-hosts
+  hosts (4):
+    node1
+    node2
+    node3
+    ansible
+[student1@ansible ~]$ ansible web -m ping
+node1 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+node2 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+node3 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+[student1@ansible ~]$ ansible web -m command -a "uptime" -o
+node1 | CHANGED | rc=0 | (stdout)  08:03:54 up 2 days,  8:56,  1 user,  load average: 0.00, 0.01, 0.05
+node2 | CHANGED | rc=0 | (stdout)  08:03:54 up 2 days,  8:56,  1 user,  load average: 0.00, 0.01, 0.05
+node3 | CHANGED | rc=0 | (stdout)  08:03:54 up 2 days,  8:55,  1 user,  load average: 0.14, 0.05, 0.06
+[student1@ansible ~]$ ansible node1 -m command -a "uptime" -o
+node1 | CHANGED | rc=0 | (stdout)  08:04:19 up 2 days,  8:57,  1 user,  load average: 0.00, 0.01, 0.05
+[student1@ansible ~]$ ansible web -m yum -a "name=httpd state=present" -b -o
+node3 | SUCCESS => {"ansible_facts": {"pkg_mgr": "yum"}, "changed": false, "msg": "", "rc": 0, "results": ["httpd-2.4.6-93.el7.x86_64 providing httpd is already installed"]}
+node1 | SUCCESS => {"ansible_facts": {"pkg_mgr": "yum"}, "changed": false, "msg": "", "rc": 0, "results": ["httpd-2.4.6-93.el7.x86_64 providing httpd is already installed"]}
+node2 | SUCCESS => {"ansible_facts": {"pkg_mgr": "yum"}, "changed": false, "msg": "", "rc": 0, "results": ["httpd-2.4.6-93.el7.x86_64 providing httpd is already installed"]}
+[student1@ansible ~]$ ansible --version
+ansible 2.7.0
+  config file = /home/student1/.ansible.cfg
+  configured module search path = [u'/home/student1/.ansible/plugins/modules', u'/usr/share/ansible/plugins/modules']
+  ansible python module location = /usr/lib/python2.7/site-packages/ansible
+  executable location = /usr/bin/ansible
+  python version = 2.7.5 (default, Mar 26 2019, 22:13:06) [GCC 4.8.5 20150623 (Red Hat 4.8.5-36)]
+[student1@ansible ~]$ cat ~/.ansible.cfg
+[defaults]
+stdout_callback = yaml
+connection = smart
+timeout = 60
+deprecation_warnings = False
+host_key_checking = False
+retry_files_enabled = False
+inventory = /home/student1/lightbulb/lessons/lab_inventory/student1-instances.txt
+[student1@ansible ~]$ cat /home/student1/lightbulb/lessons/lab_inventory/student1-instances.txt
+[all:vars]
+ansible_user=student1
+ansible_ssh_pass=6nOWzxqNrWPraL
+ansible_port=22
+
+[web]
+node1 ansible_host=3.125.197.114
+node2 ansible_host=18.156.88.137
+node3 ansible_host=3.124.145.70
+
+[control]
+ansible ansible_host=3.127.197.82
+[student1@ansible ~]$ ansible all --list-hosts
+  hosts (4):
+    node1
+    node2
+    node3
+    ansible
+[student1@ansible ~]$ ansible web -m ping
+node1 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+node3 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+node2 | SUCCESS => {
+    "changed": false,
+    "ping": "pong"
+}
+[student1@ansible ~]$ ansible web -m command -a "uptime" -oansible web -m command -a "uptime" -oansible web -m command -a "uptime" -o^C
+[student1@ansible ~]$ ansible web -m command -a "uptime" -o
+node1 | CHANGED | rc=0 | (stdout)  08:09:09 up 2 days,  9:02,  1 user,  load average: 0.16, 0.06, 0.06
+node2 | CHANGED | rc=0 | (stdout)  08:09:09 up 2 days,  9:01,  1 user,  load average: 0.00, 0.01, 0.05
+node3 | CHANGED | rc=0 | (stdout)  08:09:09 up 2 days,  9:01,  1 user,  load average: 0.00, 0.01, 0.05
+[student1@ansible ~]$ ansible node1 -m command -a "uptime" -o
+node1 | CHANGED | rc=0 | (stdout)  08:09:21 up 2 days,  9:02,  1 user,  load average: 0.12, 0.06, 0.06
+[student1@ansible ~]$

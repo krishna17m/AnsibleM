@@ -1,0 +1,330 @@
+[Krishna1@ansible apache_basic]$  cd ~/apache_intermediate
+[Krishna1@ansible apache_intermediate]$ vim site.yml
+[Krishna1@ansible apache_intermediate]$ ll
+total 8
+drwxrwxr-x. 3 Krishna1 Krishna1  27 May  4 00:29 roles
+-rw-rw-r--. 1 Krishna1 Krishna1  99 May  4 00:40 site.yml
+-rw-rw-r--. 1 Krishna1 Krishna1 479 May  2 23:54 site.yml.bak
+[Krishna1@ansible apache_intermediate]$ vim site.yml
+
+---
+- name: Install Apache playbook
+  hosts: web
+  become: yes
+  gather_facts: false
+  vars:
+    httpd_packages:
+      - httpd
+      - mod_wsgi
+    apache_test_message: This is a test message
+
+  tasks:
+
+  - name: install httpd packages
+    yum:
+      name: "{{ item }}"
+      state: present
+    loop: "{{ httpd_packages }}"
+    notify: restart apache service
+
+  handlers:
+
+  - name: restart apache service
+    service:
+      name: httpd
+      state: restarted
+      enabled: yes
+wq!
+
+==============================================
+[Krishna1@ansible apache_intermediate]$ ansible-playbook site.yml
+
+PLAY [This is my role-based playbook] **********************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [node1]
+ok: [node3]
+ok: [node2]
+
+TASK [apache-simple : install httpd packages] **************************************************************************************************************************
+ok: [node3] => (item=httpd)
+ok: [node1] => (item=httpd)
+ok: [node2] => (item=httpd)
+changed: [node3] => (item=mod_wsgi)
+changed: [node2] => (item=mod_wsgi)
+changed: [node1] => (item=mod_wsgi)
+
+TASK [apache-simple : copy index.html] *********************************************************************************************************************************
+ok: [node1]
+ok: [node2]
+ok: [node3]
+
+TASK [apache-simple : start httpd] *************************************************************************************************************************************
+changed: [node1]
+changed: [node3]
+changed: [node2]
+
+RUNNING HANDLER [apache-simple : restart apache service] ***************************************************************************************************************
+changed: [node3]
+changed: [node2]
+changed: [node1]
+
+PLAY RECAP *************************************************************************************************************************************************************
+node1                      : ok=5    changed=3    unreachable=0    failed=0
+node2                      : ok=5    changed=3    unreachable=0    failed=0
+node3                      : ok=5    changed=3    unreachable=0    failed=0
+
+[Krishna1@ansible apache_intermediate]$
+
+==============================================================RUN THE PLAYBOOK AGAIN ============================
+
+[Krishna1@ansible apache_intermediate]$  ansible-playbook site.yml
+
+PLAY [This is my role-based playbook] **********************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [node1]
+ok: [node3]
+ok: [node2]
+
+TASK [apache-simple : install httpd packages] **************************************************************************************************************************
+ok: [node3] => (item=httpd)
+ok: [node2] => (item=httpd)
+ok: [node1] => (item=httpd)
+ok: [node3] => (item=mod_wsgi)
+ok: [node1] => (item=mod_wsgi)
+ok: [node2] => (item=mod_wsgi)
+
+TASK [apache-simple : copy index.html] *********************************************************************************************************************************
+ok: [node1]
+ok: [node2]
+ok: [node3]
+
+TASK [apache-simple : start httpd] *************************************************************************************************************************************
+ok: [node3]
+ok: [node2]
+ok: [node1]
+
+PLAY RECAP *************************************************************************************************************************************************************
+node1                      : ok=4    changed=0    unreachable=0    failed=0
+node2                      : ok=4    changed=0    unreachable=0    failed=0
+node3                      : ok=4    changed=0    unreachable=0    failed=0
+
+[Krishna1@ansible apache_intermediate]$
+
+============================================Create Role
+
+[Krishna1@ansible apache_intermediate]$ cd ~/apache_intermediate/
+[Krishna1@ansible apache_intermediate]$  cd roles
+[Krishna1@ansible roles]$ ansible-galaxy init apache-simple
+ERROR! - the directory ./apache-simple already exists.you can use --force to re-initialize this directory,
+however it will reset any main.yml files that may have
+been modified there already.
+[Krishna1@ansible roles]$ tree apache-simple/
+apache-simple/
+├── defaults
+│   └── main.yml
+├── handlers
+│   └── main.yml
+├── meta
+│   └── main.yml
+├── README.md
+├── tasks
+│   └── main.yml
+├── templates
+│   └── index.html.j2
+└── vars
+    └── main.yml
+
+6 directories, 7 files
+[Krishna1@ansible roles]$ cd apache-simple/
+[Krishna1@ansible apache-simple]$ rm -rf files tests
+[Krishna1@ansible apache-simple]$ vim defaults/main.yml
+---
+# defaults file for apache-simple
+apache_test_message: This is a test message
+~
+
+[Krishna1@ansible apache-simple]$ rm -rf files tests
+[Krishna1@ansible apache-simple]$ vim defaults/main.yml
+[Krishna1@ansible apache-simple]$ vim vars/main.yml
+---
+# vars file for apache-simple
+httpd_packages:
+  - httpd
+  - mod_wsgi
+
+wq!
+
+
+[Krishna1@ansible apache-simple]$  vim handlers/main.yml
+
+---
+# handlers file for apache-simple
+- name: restart apache service
+  service:
+    name: httpd
+    state: restarted
+    enabled: yes
+~
+~
+
+wq!
+=============================================================
+
+[Krishna1@ansible apache-simple]$ $ curl http://www.opentlc.com/download/ansible_downloads/index.html.j2 -o templates/index.html.j2
+-bash: $: command not found
+[Krishna1@ansible apache-simple]$  curl http://www.opentlc.com/download/ansible_downloads/index.html.j2 -o templates/index.html.j2
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   936  100   936    0     0   3127      0 --:--:-- --:--:-- --:--:--  3130
+[Krishna1@ansible apache-simple]$  vim templates/index.html.j2
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Ansible: Automation for Everyone</title>
+  <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+  <style>
+body {
+    font-family: 'Open Sans', sans-serif;
+    text-align: center;
+}
+.container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -moz-transform: translateX(-50%) translateY(-50%);
+    -webkit-transform: translateX(-50%) translateY(-50%);
+    transform: translateX(-50%) translateY(-50%);
+    font-size: 200%;
+}
+footer {
+    width: 100%;
+    bottom: 0;
+    position: fixed;
+    font-size: 75%;
+}
+img {
+    margin: 0 auto;
+}
+  </style>
+</head>
+<body>
+<div class="container">
+    <img src="https://www.ansible.com/hubfs/2016_Images/Assets/Ansible-Tower-Logotype-Small-RGB-FullBlack.png"/>
+    <p>{{ apache_test_message }}</p>
+</div>
+<footer>{{ inventory_hostname }}<br />Ansible by Red Hat</footer>
+</body>
+</html>
+~
+~
+~
+~
+~
+"templates/index.html.j2" 38L, 936C                                  
+
+===================================================================
+[Krishna1@ansible apache-simple]$ vim tasks/main.yml
+
+---
+# tasks file for apache-simple
+
+- name: install httpd packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ httpd_packages }}"
+  notify: restart apache service
+
+- name: copy index.html
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+
+- name: start httpd
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+~
+
+wq!
+
+=========================================================
+tudent1@ansible apache_intermediate]$ vim site.yml
+
+
+---
+- name: This is my role-based playbook
+  hosts: web
+  become: yes
+
+  roles:
+  - apache-simple
+~
+~
+
+[Krishna1@ansible apache_intermediate]$ ansible-playbook site.yml
+
+PLAY [This is my role-based playbook] **********************************************************************************************************************************
+
+TASK [Gathering Facts] *************************************************************************************************************************************************
+ok: [node3]
+ok: [node2]
+ok: [node1]
+
+TASK [apache-simple : install httpd packages] **************************************************************************************************************************
+ok: [node3] => (item=httpd)
+ok: [node2] => (item=httpd)
+ok: [node1] => (item=httpd)
+ok: [node3] => (item=mod_wsgi)
+ok: [node2] => (item=mod_wsgi)
+ok: [node1] => (item=mod_wsgi)
+
+TASK [apache-simple : copy index.html] *********************************************************************************************************************************
+ok: [node3]
+ok: [node1]
+ok: [node2]
+
+TASK [apache-simple : start httpd] *************************************************************************************************************************************
+ok: [node2]
+ok: [node1]
+ok: [node3]
+
+PLAY RECAP *************************************************************************************************************************************************************
+node1                      : ok=4    changed=0    unreachable=0    failed=0
+node2                      : ok=4    changed=0    unreachable=0    failed=0
+node3                      : ok=4    changed=0    unreachable=0    failed=0
+
+[Krishna1@ansible apache_intermediate]$
+
+~
+
+
+
+
+
+
+
+
+
+
+
+~
+~
+
+
+
+
+
+~
+~
+~
+~
+~
+~
+~
+~
+~
+~
