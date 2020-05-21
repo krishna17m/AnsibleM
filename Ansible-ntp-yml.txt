@@ -1,0 +1,31 @@
+ansadmin@ansible-cm:~$ ansible-playbook test.yml
+
+
+PLAY [all] ***************************************************************************************************************************
+
+TASK [Gathering Facts] ***************************************************************************************************************
+ok: [web01]
+ok: [192.168.119.22]
+
+TASK [Ensure NTP (for time synchronization) is installed.] ***************************************************************************
+ok: [web01]
+ok: [192.168.119.22]
+
+TASK [Ensure NTP is running.] ********************************************************************************************************
+changed: [192.168.119.22]
+changed: [web01]
+
+PLAY RECAP ***************************************************************************************************************************
+192.168.119.22             : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+web01                      : ok=3    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+
+ansadmin@ansible-cm:~$ cat test.yml
+---
+- hosts: all
+  sudo: yes
+  tasks:
+  - name: Ensure NTP (for time synchronization) is installed.
+    yum: name=ntp state=present
+  - name: Ensure NTP is running.
+    service: name=ntpd state=started enabled=yes
+ansadmin@ansible-cm:~$
